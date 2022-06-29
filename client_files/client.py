@@ -15,10 +15,12 @@ class Client:
         return f".:: Welcome to the {HOST} server! Type '--help' for info. ::.\n"
 
 
-    def wrap(self, message):
+    def wrap(self, msg: str, id='client', cmd=None, is_admin=False):
         msg = {
-            "id": "client",
-            "message": message
+            "id": id,
+            "message": msg,
+            "is_admin": is_admin,
+            "cmd": cmd
         }
         return json.dumps(msg).encode(CODING)
 

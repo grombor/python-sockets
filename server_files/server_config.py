@@ -6,4 +6,4 @@ PORT = 5001
 HEADER_SIZE = 1024
 CODING = "utf-8"
 UPTIME = datetime.now()
-VERSION = "1.0.0"
+VERSION = "2.0.0"

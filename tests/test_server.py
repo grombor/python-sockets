@@ -1,6 +1,7 @@
 import pytest
 
 from server_files.server import Server
+from server_files.user import UserAccountClass
 
 
 @pytest.fixture
@@ -38,4 +39,44 @@ def test_server_handle_commands(test_server_class):
 
 def test_server_show_help(test_server_class):
     assert hasattr(test_server_class, 'show_help')
+
+
+def test_server_has_show_version(test_server_class):
+    assert hasattr(test_server_class, 'show_version')
+
+
+def test_server_show_version(test_server_class):
+    assert type(test_server_class().show_version()) == bytes
+
+
+def test_server_has_stop(test_server_class):
+    assert hasattr(test_server_class, 'stop')
+
+
+def test_server_has_show_uptime(test_server_class):
+    assert hasattr(test_server_class, 'show_uptime')
+
+
+def test_server_has_login(test_server_class):
+    assert hasattr(test_server_class, 'login')
+
+
+def test_server_has_create_user(test_server_class):
+    assert hasattr(test_server_class, 'create_user')
+
+
+def test_server_create_user(test_server_class):
+    assert type(test_server_class().create_user("test", "test")) == UserAccountClass
+
+
+def test_server_has_add_user(test_server_class):
+    assert hasattr(test_server_class, 'add_user')
+
+
+def test_server_has_read_from_file(test_server_class):
+    assert hasattr(test_server_class, 'read_from_file')
+
+
+def test_server_has_read_from_file(test_server_class):
+    assert type(test_server_class().read_from_file()) == list()
 
