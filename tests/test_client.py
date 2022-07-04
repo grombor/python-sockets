@@ -16,14 +16,20 @@ def test_client_class_has_send(test_client_class):
 
 
 def test_client_send_message_is_byte(test_client_class):
-    assert type(test_client_class().wrap(message="test")) == bytes
+    assert type(test_client_class().wrap("test")) == bytes
 
 
 def test_client_class_get_message(test_client_class):
     assert hasattr(test_client_class, 'get_message')
 
 
-# def test_client_class_get_message(test_client_class):
-#     assert type(test_client_class().get_message("test")) == str
+def test_client_class_is_command(test_client_class):
+    assert hasattr(test_client_class, 'is_command')
+
+
+def test_client_class_login(test_client_class):
+    assert hasattr(test_client_class, 'login')
+
+
 
 

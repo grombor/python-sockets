@@ -2,12 +2,15 @@ import json
 from datetime import datetime
 
 from server_files.server_config import *
-from server_files.user import UserAccountClass
+from server_files.auth import Authenticate
+
 
 class Server:
     """
     Server class is responsible for the operation of the server.
     """
+
+    _user = None
 
 
     _commands = {
@@ -16,6 +19,8 @@ class Server:
         "-help": "show this help",
         "-info": "show server version and creation date",
         "-uptime": "show server lifetime",
+        "-new_user": "creates a new user",
+        "-login": "send user credentials to log in"
     }
 
 
@@ -24,14 +29,11 @@ class Server:
         return f".:: Welcome to the {HOST} server! Type '--help' for info. ::.\n"
 
 
-    # TODO: change id, msg, cmd, is admin to User object
-    def wrap(self, msg: str, id='server', cmd=None, is_admin=False) -> bytes:
+    def wrap(self, msg: str, id='server') -> bytes:
         """ Takes string, insert into JSON format and encode it. Makes message ready to send. """
         text = {
             "id": id,
             "message": msg,
-            "is_admin": is_admin,
-            "cmd": cmd
         }
         message = json.dumps(text).encode(CODING)
         return message
@@ -50,7 +52,7 @@ class Server:
 
     def stop(self):
         """ Shuts down a server. """
-        return self.wrap("Shutting down a server.", cmd="-stop", is_admin=True)
+        return self.wrap("-stop")
 
 
 
@@ -59,7 +61,7 @@ class Server:
         text = "\n"
         for key, value in self._commands.items():
             text += f"{key}: {value} \n"
-        return str(text)
+        return self.wrap(text)
 
 
     def show_version(self):
@@ -73,47 +75,9 @@ class Server:
         return self.wrap(f"Server is online since {uptime} seconds.")
 
 
-    def read_from_file(self):
-        """ Reads from file list of users """
-        try:
-            with open(r'users.txt', "rt") as file:
-                context = file.read()
-                print(context)
-                return context
-        except FileNotFoundError as e:
-            with open(r'users.txt', "x") as f:
-                f.close()
-
-
-    def add_user(self, user):
-        """ Opens file and reads context from file. If file is not exist - creates a blank one. """
-        users = self.read_from_file()
-        # Append new user if not exist
-        if user not in users:
-            users.append(user)
-        # Save to file
-        # Close file
-        pass
-
-
-    def create_user(selfself, name, password):
-        """
-        Creates a new user instance.
-        arg1 (type str) - username
-        arg2 (type str) - password
-        arg3 (type bool) - False for normal users, True for admins. Default = False
-        """
-        return UserAccountClass(name, password)
-
-
-    def login(self):
-        """ Sends back client login request. """
-        return self.wrap("-login")
-
-
-    def handle_commands(self, command):
+    def handle_commands(self, message, data):
         """ Flow control of server commands. """
-        match command:
+        match message:
             case '-quit' | '-stop':
                 return self.stop()
             case '-help':
@@ -122,8 +86,15 @@ class Server:
                 return self.show_version()
             case '-uptime':
                 return self.show_uptime()
+            case '-new_user':
+                print(f"is admin: {self._user}")
+                return self.wrap("any")
             case '-login':
-                return self.login()
+                credentials = data.split('@')
+                self._user = Authenticate().login(*credentials)
+                if self._user is not None:
+                    return self.wrap("OK")
+                else: self.wrap("NOT OK")
             case _:
                 print("other")
 
