@@ -15,9 +15,8 @@ class Client:
         return print(f".:: Welcome to the {HOST} server! Type '-help' for info. ::.\n")
 
 
-    def wrap(self, msg: str, data=None, id='client'):
+    def wrap(self, msg: str, data=''):
         msg = {
-            # "id": id,
             "message": msg,
             "data": data
         }
@@ -33,7 +32,6 @@ class Client:
 
 
     def login(self) -> str:
-        print("Login to server:")
         login = input("Enter username: ")
         password = input("Enter password: ")
         msg = "-login"

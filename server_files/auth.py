@@ -33,6 +33,21 @@ class Authenticate:
             print(e)
 
 
+    def add_user(self, username:str, password:str, is_admin: bool = False):
+        u = UserAccountClass(username, password, is_admin)
+        self._users.append(u)
+        return u.to_json()
+
+
+    def save_to_file(self):
+        """ Save JSON users database to a file. """
+        with open(USERS_FILEPATH, "a") as f:
+            temp = []
+            for _user in self._users:
+                temp.append(_user.to_json())
+            f.write(str(temp))
+            f.close()
+
 
 # Authenticate().read_from_file()
 #

@@ -2,6 +2,7 @@ import json
 from abc import ABC, abstractmethod
 
 users = []
+logged_in_user = None
 
 class AccountClass(ABC):
     """ Abstract account class interface. """
@@ -58,12 +59,12 @@ class UserAccountClass(AccountClass):
         return f"username: {self._username}, password: {self._password}, is admin: {self._is_admin}"
 
 
-    def get_username(self):
+    def get_username(self) -> str:
         """ Getter of account name. """
         return self._username
 
 
-    def set_username(self, name):
+    def set_username(self, name) -> None:
         """ Setter of account name. """
         self._username = name
 
@@ -84,7 +85,7 @@ class UserAccountClass(AccountClass):
     def to_json(self):
         """ Returns user class in JSON format """
         json_object = {
-            "id": self._username,
+            "username": self._username,
             "password": self._password,
             "is_admin": self._is_admin
         }

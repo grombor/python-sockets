@@ -4,19 +4,20 @@ from client_files.config import *
 from client_files.client import Client
 
 c = Client()
-is_admin = None
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Connect to server
     s.connect((HOST, PORT))
 
+    # Login loop
     while True:
-        # TODO: Make Object - User with id and pass
         # Send login@passowrd
         s.send(c.wrap(*c.login()))
         # Shows client's greetings after successful connection
         request = json.loads(s.recv(HEADER_SIZE).decode(CODING))
         if request['message'] == "OK":
+            if request['data'] == "admin":
+                is_admin = True
             break
 
     # Sends greeting after successfully login
@@ -26,10 +27,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Wraps a message to JSON format and sends it to server
     s.send(c.wrap(message))
     while True:
-        # Receives a message from server and unwrap it to dict
-        request = json.loads(s.recv(HEADER_SIZE).decode(CODING))
-        message = request['message']
-        data = request['data']
+        try:
+            # Receives a message from server and unwrap it to dict
+            request = json.loads(s.recv(HEADER_SIZE).decode(CODING))
+            message = request['message']
+            data = request['data']
+        except Exception as e:
+            s.close()
+            print(f"Something went wrong: {e}")
 
         if c.is_command(message):
             match message:
@@ -37,10 +42,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     print("Quitting")
                     s.close()
                     break
-                case "-is_admin":
-                    message = "is admin!"
-                    print(message)
-                    s.send(message)
+                case "-login":
+                    message, data = c.login()
+                    message = "-create_user"
+                    s.send(c.wrap(message, data))
+                    print("Press Enter to confirm.")
+                case _:
+                    print("Unknown command")
         else:
             print(f'message received: {message}')
 

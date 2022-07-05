@@ -3,6 +3,9 @@ from datetime import datetime
 
 from server_files.server_config import *
 from server_files.auth import Authenticate
+from server_files.user import logged_in_user
+
+_logged_in_user = logged_in_user
 
 
 class Server:
@@ -19,7 +22,7 @@ class Server:
         "-help": "show this help",
         "-info": "show server version and creation date",
         "-uptime": "show server lifetime",
-        "-new_user": "creates a new user",
+        "-create_user": "creates a new user",
         "-login": "send user credentials to log in"
     }
 
@@ -29,11 +32,12 @@ class Server:
         return f".:: Welcome to the {HOST} server! Type '--help' for info. ::.\n"
 
 
-    def wrap(self, msg: str, id='server') -> bytes:
+    def wrap(self, msg: str, data: str ="", id: str ='server') -> bytes:
         """ Takes string, insert into JSON format and encode it. Makes message ready to send. """
         text = {
             "id": id,
             "message": msg,
+            "data": data
         }
         message = json.dumps(text).encode(CODING)
         return message
@@ -86,14 +90,29 @@ class Server:
                 return self.show_version()
             case '-uptime':
                 return self.show_uptime()
-            case '-new_user':
-                print(f"is admin: {self._user}")
-                return self.wrap("any")
+            case '-create_user':
+                # New user logic
+                global _logged_in_user
+                if _logged_in_user.get_is_admin():
+                    if data:
+                        # Create new user
+                        print(f"{data=}")
+                        credentials = data.split('@')
+                        Authenticate().add_user(*credentials)
+                        Authenticate().save_to_file()
+                        return self.wrap("User created successfully.")
+                    return self.wrap("-login", "")
+                else: return self.wrap("Only Admin can create new users.")
             case '-login':
+                # Login in logic
                 credentials = data.split('@')
                 self._user = Authenticate().login(*credentials)
+                _logged_in_user = self._user
                 if self._user is not None:
-                    return self.wrap("OK")
+                    data = "user"
+                    if self._user.get_is_admin():
+                        data = "admin"
+                    return self.wrap("OK", data)
                 else: self.wrap("NOT OK")
             case _:
                 print("other")
