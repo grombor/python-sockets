@@ -13,7 +13,6 @@ class Authenticate:
         self.read_from_file()
         for _user in self._users:
             if (_user.get_username() == login) and (_user.get_password() == password):
-                print(f"user from auth: {_user}")
                 return _user
         return None
 
@@ -35,63 +34,52 @@ class Authenticate:
 
     def add_user(self, username:str, password:str, is_admin: bool = False):
         u = UserAccountClass(username, password, is_admin)
-        self._users.append(u)
-        return u.to_json()
+        if self.find_user_by_name(username) is None:
+            self._users.append(u)
+            self.save_to_file()
+            return u.to_json()
+        return None
 
 
     def save_to_file(self):
         """ Save JSON users database to a file. """
-        with open(USERS_FILEPATH, "a") as f:
+        with open(USERS_FILEPATH, "w") as f:
             temp = []
             for _user in self._users:
                 temp.append(_user.to_json())
-            f.write(str(temp))
+            f.write(json.dumps(temp))
             f.close()
 
 
-# Authenticate().read_from_file()
-#
-# for user in Authenticate()._users:
-#     print(user)
+    def find_user_by_name(self, username):
+        """ Search users database by a username. If username is found, return the user object, else return false"""
+        for _user in self._users:
+            if _user.get_username == username:
+                return _user
+            return None
 
-#     def save_to_file(self, users) -> None:
-#         """ Save JSON users database to a file. """
-#         with open(USERS_FILEPATH, "a") as f:
-#             f.write(users)
-#             f.close()
-#
-#
-# def create_new_user(self, data) -> None:
-#     """
-#     Creates a new user instance.
-#     arg1 (type str) - username
-#     arg2 (type str) - password
-#     arg3 (type bool) - takes False for low-level users, True for admins. Default = False
-#     """
-#     new_user = UserAccountClass("name", "password")
-#     return self.wrap("-create_new_user")
-#     # self.add_user(new_user)+
-#
-#
-#     def add_user(self, user):
-#         """ Opens file and reads context from file. If file is not exist - creates a blank one. """
-#         # Checks is file exist, if not creates a blank file
-#         global users
-#         # Append new user if not exist
-#         users.append(user)
-#         dict_to_json = {
-#             "users": users
-#         }
-#         users = json.dumps(dict_to_json)
-#         # Save to file
-#         self.save_to_file(users)
-#         # Close file
-#
-#
-#     def is_admin(self, user):
-#         credentials = user.split('@')
-#         users = self.read_from_file()
-#         for user in users:
-#             if user['username'] == credentials[0] and user['password'] == credentials[1]:
-#                 if user['is_admin']:
-#                     return True
+
+    def remove_user(self, username):
+        """ Removes a user """
+        _user = self.find_user_by_name(username)
+        if _user is None:
+            return None
+        else:
+            self._users.remove(_user)
+            self.save_to_file()
+            return True
+
+
+    def edit_user(self, data):
+        """ Edits a user """
+        username, new_username, new_password, is_admin = data.split('@')
+        _user = self.find_user_by_name(username)
+        if _user is None:
+            return None
+        else:
+            _user.set_usename(new_username)
+            _user.set_password(new_password)
+            _user.set_is_admin(is_admin)
+            self.save_to_file()
+            return True
+

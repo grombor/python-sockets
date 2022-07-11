@@ -23,7 +23,9 @@ class Server:
         "-info": "show server version and creation date",
         "-uptime": "show server lifetime",
         "-create_user": "creates a new user",
-        "-login": "send user credentials to log in"
+        "-new_user": "should be hidden",
+        "-login": "should be hidden",
+        "-remove_user": "removes a user",
     }
 
 
@@ -82,28 +84,31 @@ class Server:
     def handle_commands(self, message, data):
         """ Flow control of server commands. """
         match message:
-            case '-quit' | '-stop':
+            case "-quit" | "-stop":
                 return self.stop()
-            case '-help':
+            case "-help":
                 return self.show_help()
-            case '-info':
+            case "-info":
                 return self.show_version()
-            case '-uptime':
+            case "-uptime":
                 return self.show_uptime()
-            case '-create_user':
-                # New user logic
+            case "-create_user":
+                # Checks is user logged in
                 global _logged_in_user
+                # Checks user is an admin
                 if _logged_in_user.get_is_admin():
-                    if data:
-                        # Create new user
-                        print(f"{data=}")
-                        credentials = data.split('@')
-                        Authenticate().add_user(*credentials)
-                        Authenticate().save_to_file()
-                        return self.wrap("User created successfully.")
-                    return self.wrap("-login", "")
+                    return self.wrap("-new_user")
                 else: return self.wrap("Only Admin can create new users.")
-            case '-login':
+            case "-new_user":
+                print(f"New user status: OK, {message=}, {data=}")
+                if data:
+                    # Create new user
+                    credentials = data.split('@')
+                    if Authenticate().add_user(*credentials) is not None:
+                        return self.wrap("User created successfully.")
+                    return self.wrap("The user already exists.")
+                return self.wrap("Error: no data")
+            case "-login":
                 # Login in logic
                 credentials = data.split('@')
                 self._user = Authenticate().login(*credentials)
@@ -114,7 +119,14 @@ class Server:
                         data = "admin"
                     return self.wrap("OK", data)
                 else: self.wrap("NOT OK")
+            case "-remove_user":
+                if Authenticate().remove_user(data):
+                    return self.wrap("User deleted successfully.")
+                return self.wrap("User does not exists.")
+            case "-edit_user":
+                if Authenticate().edit_user(data):
+                    return self.wrap("User edited successfully.")
             case _:
-                print("other")
+                print("Unknown command")
 
 

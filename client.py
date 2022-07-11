@@ -11,31 +11,39 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     # Login loop
     while True:
-        # Send login@passowrd
+        # Sends login@passowrd to log in to server
         s.send(c.wrap(*c.login()))
+
         # Shows client's greetings after successful connection
         request = json.loads(s.recv(HEADER_SIZE).decode(CODING))
+
+        # Gets privileges from server if user is an admin
         if request['message'] == "OK":
             if request['data'] == "admin":
                 is_admin = True
             break
 
-    # Sends greeting after successfully login
+    # Prints greeting after successfully login
     c.greetings()
+
     # Take text of the message text form keyboard input
     message = c.get_message()
+
     # Wraps a message to JSON format and sends it to server
     s.send(c.wrap(message))
+
+    # Main client program loop
     while True:
         try:
-            # Receives a message from server and unwrap it to dict
+            # Receives a message from server and converts it to <dict>
             request = json.loads(s.recv(HEADER_SIZE).decode(CODING))
             message = request['message']
             data = request['data']
         except Exception as e:
             s.close()
-            print(f"Something went wrong: {e}")
+            print(f"Something went wrong: {e}, line 38")
 
+        # Checks message is a command
         if c.is_command(message):
             match message:
                 case "-stop" | "-quit":
@@ -44,9 +52,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     break
                 case "-login":
                     message, data = c.login()
-                    message = "-create_user"
                     s.send(c.wrap(message, data))
                     print("Press Enter to confirm.")
+                case "-new_user":
+                    message, data = c.new_user()
+                    s.send((c.wrap(message, data)))
+                    print("Press any key and press Enter to confirm")
                 case _:
                     print("Unknown command")
         else:

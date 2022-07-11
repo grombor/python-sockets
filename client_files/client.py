@@ -1,5 +1,5 @@
 import json
-import socket
+# import socket
 
 from client_files.config import *
 
@@ -38,4 +38,11 @@ class Client:
         data = "@".join([login, password])
         return msg, data
 
+    def new_user(self) -> str:
+        login = input("Enter username: ")
+        password = input("Enter password: ")
+        is_admin = input("Admin account? [True/False]")
+        msg = "-new_user"
+        data = "@".join([login, password, is_admin])
+        return msg, data
 

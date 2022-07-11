@@ -81,12 +81,16 @@ class UserAccountClass(AccountClass):
         """ Getter of is_admin  attribute. """
         return self._is_admin
 
+    def set_is_admin(self):
+        """ Getter of is_admin  attribute. """
+        return self._is_admin
+
 
     def to_json(self):
         """ Returns user class in JSON format """
         json_object = {
             "username": self._username,
             "password": self._password,
-            "is_admin": self._is_admin
+            "is_admin": bool(self._is_admin)
         }
-        return json.dumps(json_object)
+        return json_object
