@@ -58,6 +58,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     message, data = c.new_user()
                     s.send((c.wrap(message, data)))
                     print("Press any key and press Enter to confirm")
+                    continue
+                case "-update_user":
+                    message, data = c.update_user()
+                    s.send((c.wrap(message, data)))
+                    print("Press any key and press Enter to confirm")
+                    continue
                 case _:
                     print("Unknown command")
         else:

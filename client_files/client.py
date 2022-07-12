@@ -38,6 +38,7 @@ class Client:
         data = "@".join([login, password])
         return msg, data
 
+
     def new_user(self) -> str:
         login = input("Enter username: ")
         password = input("Enter password: ")
@@ -45,4 +46,15 @@ class Client:
         msg = "-new_user"
         data = "@".join([login, password, is_admin])
         return msg, data
+
+
+    def update_user(self):
+        data = []
+        data.append(input("Enter username: "))
+        data.append(input("Enter a new username: "))
+        data.append(input("Enter a new password: "))
+        data.append(input("Admin account? [True/False]"))
+        data = '@'.join(data)
+        return "-update_user", data
+
 

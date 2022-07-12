@@ -81,9 +81,9 @@ class UserAccountClass(AccountClass):
         """ Getter of is_admin  attribute. """
         return self._is_admin
 
-    def set_is_admin(self):
+    def set_is_admin(self, is_admin: bool):
         """ Getter of is_admin  attribute. """
-        return self._is_admin
+        self._is_admin = is_admin
 
 
     def to_json(self):

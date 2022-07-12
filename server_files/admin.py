@@ -3,7 +3,7 @@ from server_files.server_config import USERS_FILEPATH
 from server_files.user import UserAccountClass
 
 
-class Authenticate:
+class Admin:
 
     _users = []
 
@@ -23,11 +23,12 @@ class Authenticate:
             with open(USERS_FILEPATH, "r") as f:
                 users = json.loads(f.read())
                 f.close()
+                self._users = []
 
                 for _user in users:
                     u = UserAccountClass(**_user)
                     self._users.append(u)
-                return
+                print(len(self._users))
         except Exception as e:
             print(e)
 
@@ -47,6 +48,7 @@ class Authenticate:
             temp = []
             for _user in self._users:
                 temp.append(_user.to_json())
+                print(f"appending {_user.to_json()}")
             f.write(json.dumps(temp))
             f.close()
 
@@ -54,9 +56,9 @@ class Authenticate:
     def find_user_by_name(self, username):
         """ Search users database by a username. If username is found, return the user object, else return false"""
         for _user in self._users:
-            if _user.get_username == username:
+            if _user.get_username() == username:
                 return _user
-            return None
+        return None
 
 
     def remove_user(self, username):
@@ -73,12 +75,14 @@ class Authenticate:
     def edit_user(self, data):
         """ Edits a user """
         username, new_username, new_password, is_admin = data.split('@')
-        _user = self.find_user_by_name(username)
+        self.read_from_file()
+        _user: UserAccountClass = self.find_user_by_name(username)
         if _user is None:
             return None
         else:
-            _user.set_usename(new_username)
+            _user.set_username(new_username)
             _user.set_password(new_password)
+            is_admin = True if is_admin == "True" else False
             _user.set_is_admin(is_admin)
             self.save_to_file()
             return True
