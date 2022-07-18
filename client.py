@@ -14,7 +14,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # Sends login@passowrd to log in to server
         s.send(c.wrap(*c.login()))
 
-        # Shows client's greetings after successful connection
+        # Shows server response after try to log in
         request = json.loads(s.recv(HEADER_SIZE).decode(CODING))
 
         # Gets privileges from server if user is an admin
@@ -22,6 +22,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             if request['data'] == "admin":
                 is_admin = True
             break
+
 
     # Prints greeting after successfully login
     c.greetings()
@@ -41,7 +42,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             data = request['data']
         except Exception as e:
             s.close()
-            print(f"Something went wrong: {e}, line 38")
+            print(f"Something went wrong: {e}, \nfile: client_files/client.py, line 40")
 
         # Checks message is a command
         if c.is_command(message):
@@ -57,12 +58,17 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 case "-new_user":
                     message, data = c.new_user()
                     s.send((c.wrap(message, data)))
-                    print("Press any key and press Enter to confirm")
                     continue
                 case "-update_user":
                     message, data = c.update_user()
                     s.send((c.wrap(message, data)))
-                    print("Press any key and press Enter to confirm")
+                    continue
+                case "-send":
+                    message = "-send"
+                    data = input("Enter a username: ")
+                    data += '@'
+                    data += input("Enter message context: ")
+                    s.send(c.wrap(message, data))
                     continue
                 case _:
                     print("Unknown command")
@@ -73,5 +79,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         message = c.get_message()
         # Wraps a message to JSON format and sends it to server
         s.send(c.wrap(message))
-        print(f"message sended: {message}")
+        print(f"message sent: {message}")
 

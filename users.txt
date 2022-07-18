@@ -1,1 +1,1 @@
-[{"username": "foo", "password": "bar", "is_admin": true}, {"username": "user1", "password": "pass1", "is_admin": false}]
+[{"username": "foo", "password": "bar", "is_admin": true, "messages": []}, {"username": "user1", "password": "pass1", "is_admin": false, "messages": ["message1", "msg2"]}]

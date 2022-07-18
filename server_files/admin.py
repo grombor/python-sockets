@@ -28,7 +28,6 @@ class Admin:
                 for _user in users:
                     u = UserAccountClass(**_user)
                     self._users.append(u)
-                print(len(self._users))
         except Exception as e:
             print(e)
 

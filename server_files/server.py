@@ -21,12 +21,14 @@ class Server:
         "-help": "show this help",
         "-info": "show server version and creation date",
         "-uptime": "show server lifetime",
-        "-create_user": "creates a new user",
-        "-edit_user": "updates user data",
-        "-remove_user": "removes a user",
+        "-messagebox": "checks offline messages in messagebox",
+        "-create_user": "creates a new user - admin only",
+        "-edit_user": "updates user data - admin only",
+        "-remove_user": "removes a user - admin only",
+        "-send": "sends a message to user",
         "-new_user": "should be hidden",
         "-login": "should be hidden",
-        "-update_user": "should be hidden",
+        "-update_user": "should be hidden"
     }
 
 
@@ -82,6 +84,24 @@ class Server:
         return self.wrap(f"Server is online since {uptime} seconds.")
 
 
+    def send_msg_to_user(self, data):
+        """ Finds user in a userlist,
+        if user exists, adds a new offline message"""
+        username, message = data.split('@')
+        a = Admin()
+        a.read_from_file()
+        user = a.find_user_by_name(username)
+        if user is None:
+            return self.wrap("User does not exists.")
+        else:
+            user.set_message(message)
+            a.save_to_file()
+            return self.wrap("The message sent.")
+
+    def unknown_command(self):
+        return self.wrap("Unknown command. Type '-help' for more info.")
+
+
     def handle_commands(self, message, data):
         """ Flow control of server commands. """
         # Checks is user logged in
@@ -127,15 +147,29 @@ class Server:
                 self._user = Admin().login(*credentials)
                 _logged_in_user = self._user
                 if self._user is not None:
-                    data = "user"
-                    if self._user.get_is_admin():
-                        data = "admin"
-                    return self.wrap("OK", data)
-                else: self.wrap("NOT OK")
+                    try:
+                        data = "user"
+                        if self._user.get_is_admin():
+                            data = "admin"
+                        return self.wrap("OK", data)
+                    except AttributeError:
+                        return self.wrap("Error: Incorrect username or password")
+                else: return self.wrap("Incorrect username or password")
             case "-remove_user":
                 if Admin().remove_user(data):
                     return self.wrap("User deleted successfully.")
                 return self.wrap("User does not exists.")
+            case "-messagebox":
+                messages = _logged_in_user.get_messages()
+                print(f"user: {_logged_in_user=} and {self._user}, messages: {messages=}")
+                if len(messages) > 0 :
+                    return self.wrap(_logged_in_user.show_offline_messages())
+                return self.wrap("You have no new messages")
+            case "-send":
+                if data == "":
+                    return self.wrap("-send")
+                else:
+                    return self.send_msg_to_user(data)
             case _:
                 print("Unknown command")
 

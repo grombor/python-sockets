@@ -10,12 +10,14 @@ class Client:
     """
 
 
+    username = ""
+
     def greetings(self):
         """ Shows greetings. """
         return print(f".:: Welcome to the {HOST} server! Type '-help' for info. ::.\n")
 
 
-    def wrap(self, msg: str, data=''):
+    def wrap(self, msg, data=''):
         msg = {
             "message": msg,
             "data": data
@@ -24,18 +26,19 @@ class Client:
 
 
     def get_message(self):
-        return str(input("send: "))
+        return input("send: ")
 
 
     def is_command(self, command):
         return command[:1] == "-"
 
 
-    def login(self) -> str:
-        login = input("Enter username: ")
+    def login(self):
+        print("Logging in:")
+        self.username = input("Enter username: ")
         password = input("Enter password: ")
         msg = "-login"
-        data = "@".join([login, password])
+        data = "@".join([self.username, password])
         return msg, data
 
 

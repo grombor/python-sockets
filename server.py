@@ -16,8 +16,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             # If receive no response or null response from client
             # ex. client fatal error. Then turn server off.
-            if not data:
-                print("terminating connection")
+            if data is None:
+                print(f"terminating connection, received {data=}")
                 client_socket.close()
                 break
 
@@ -28,12 +28,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # Checks is message from client is a server command
             if message['message'] in Server().get_commands():
                 msg = Server().handle_commands(**message)
-                print(f"send command: {msg}")
                 client_socket.send(msg)
+                continue
             # If message is not a server command send tooltip to client
             else:
-                msg = "Unknown command. Type '-help' for more info.".encode(CODING)
-                client_socket.send(msg)
+                # message is not None:
+                client_socket.send(Server().unknown_command())
 
 
 
