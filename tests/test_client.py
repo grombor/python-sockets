@@ -31,5 +31,13 @@ def test_client_class_login(test_client_class):
     assert hasattr(test_client_class, 'login')
 
 
+def test_client_class_login(test_client_class):
+    assert hasattr(test_client_class, 'new_user')
+
+
+def test_client_class_login(test_client_class):
+    assert hasattr(test_client_class, 'update_user')
+
+
 
 
